@@ -103,7 +103,16 @@ cpu_temp() {
           $ECHO ${fromcore##*Physical}  | $CUT -d ' ' -f 3 | $CUT -c 2-5 | _parseAndPrint
         fi
       else
-        $ECHO "[]" | _parseAndPrint
+        #Check CPU model
+        CPUINFO=$(cat /proc/cpuinfo)
+        
+        # Fixing Raspberry run ubuntu in docker
+        if [[ $CPUINFO == *"Raspberry Pi"* ]]; then
+          cpu=$(</sys/class/thermal/thermal_zone0/temp)
+          echo "$((cpu/1000))" | _parseAndPrint
+        else
+          $ECHO "[]" | _parseAndPrint
+        fi
       fi
     ;;
   esac
